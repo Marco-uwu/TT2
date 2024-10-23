@@ -1,16 +1,19 @@
 import socket
 import json
 
+ID_ESTACION = 1
+
 def cliente():
     datos = {
-        "voltaje1": 0.0,
-        "voltaje2": 0.0,
-        "voltaje3": 0.0,
-        "voltaje4": 0.0,
-        "voltaje5": 0.0,
-        "intensidad1": 0.0,
-        "intensidad2": 0.0,
-        "temperatura1": 0.0
+		"id_estacion": ID_ESTACION,
+        "voltaje_1": 0.0,
+        "voltaje_2": 0.0,
+        "voltaje_3": 0.0,
+        "voltaje_4": 0.0,
+        "voltaje_5": 0.0,
+        "intensidad_1": 0.0,
+        "intensidad_2": 0.0,
+        "temperatura_1": 0.0
     }
     
     print("Diccionario de datos:", datos)
