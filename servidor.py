@@ -3,9 +3,11 @@ import threading
 import json
 import mysql.connector
 
+from claseEstacion import Estacion
+
 def manejar_cliente(cliente_socket, direccion_cliente):
     print(f"Saludos desde la dirección {direccion_cliente[0]}")
-    mensaje = cliente_socket.recv(1024).decode('utf-8')
+    mensaje = cliente_socket.recv(4096).decode('utf-8')
     datos = json.loads(mensaje)
     print("Datos recibidos:", datos)
     
@@ -19,24 +21,16 @@ def manejar_cliente(cliente_socket, direccion_cliente):
     
     cursor = conexion.cursor()
     
-    # Diccionario para mapear los tipos de datos
-    tipos_datos = {
-        "voltaje_1": 1,
-        "voltaje_2": 2,
-        "voltaje_3": 3,
-        "voltaje_4": 4,
-        "voltaje_5": 5,
-        "intensidad_1": 6,
-        "intensidad_2": 7,
-        "temperatura_1": 8
-    }
-    
-    # Insertar los datos en la base de datos
-    for key, tipo_id in tipos_datos.items():
-        valor = datos[key]
-        estacion_id = datos["id_estacion"]
-        query = "INSERT INTO mediciones (tipo_id, valor, estacion_id) VALUES (%s, %s, %s)"
-        cursor.execute(query, (tipo_id, valor, estacion_id))
+    query = """
+    INSERT INTO mediciones (voltaje_1, voltaje_2, voltaje_3, voltaje_4, voltaje_5, intensidad_1, intensidad_2, temperatura, estacion_id)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    valores = (
+        datos['voltaje_1'], datos['voltaje_2'], datos['voltaje_3'], datos['voltaje_4'], 
+        datos['voltaje_5'], datos['intensidad_1'], datos['intensidad_2'], datos['temperatura'], 
+        datos['id_estacion']
+    )
+    cursor.execute(query, valores)
     
     # Confirmar los cambios
     conexion.commit()
