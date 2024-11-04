@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estaciones de Carga</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}" />
+    <link rel="icon" href="{% static 'icons/circle-water-plug-svgrepo-com.svg' %}" type="image/svg+xml">
+  </head>
+  <body>
+    <section style="background-color: #f9f9f9;">
+      <div>
+        <h1 style="font-size:40px; text-align:center;">Estaciones de Carga</h1>
+      </div>
+    </section>
+    <div class="demo-page">
+      <div class="demo-page-navigation">
+        <nav>
+          <ul>
+            <li>
+              <a href="#estaciones">
+                <img src="{% static 'icons/circle-plug-alt-svgrepo-com.svg' %}" alt="Icono de estaciones" width="24" height="24" style="margin-right: 8px;">
+                Estaciones
+              </a>
+            </li>
+            <li>
+              <a href="#parametros">
+                <img src="{% static 'icons/message-circle-exclamation-svgrepo-com.svg' %}" alt="Icono de parámetros" width="24" height="24" style="margin-right: 8px;">
+                Parámetros
+              </a>
+            </li>
+            <li>
+              <a href="#graficas">
+                <img src="{% static 'icons/chart-pie-alt-1-svgrepo-com.svg' %}" alt="Icono de gráficas" width="24" height="24" style="margin-right: 8px;">
+                Gráficas
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <main class="demo-page-content">
+        <section>
+          <div class="href-target" id="estaciones"></div>
+          <h1>
+            <img src="{% static 'icons/circle-plug-alt-svgrepo-com.svg' %}" alt="Icono de estaciones" width="24" height="24" style="margin-right: 8px;">
+            Estaciones
+          </h1>
+          <p>Consulta el estado actual de las estaciones.</p>
+          <div>
+            <table>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+                <th>Estado</th>
+              </tr>
+              	{% for estacion in estaciones %}
+        	<tr>
+            	<td>{{ estacion.id }}</td>
+            	<td>{{ estacion.nombre }}</td>
+            	<td>{{ estacion.ubicacion }}</td>
+            	<td>{{ estacion.estado }}</td>
+        	</tr>
+        	{% endfor %}
+            </table>
+          </div>
+          <details>
+            <summary>
+              <div class="toggle-code" onclick="window.location.href='reset.html'; return false;">
+                <img src="{% static 'icons/file-plus-alt-svgrepo-com.svg' %}" width="16" height="16" style="margin-right: 8px;">
+                Ver más
+              </div>
+            </summary>
+          </details>
+        </section>
+        <section>
+          <div class="href-target" id="parametros"></div>
+          <h1>
+            <img src="{% static 'icons/message-circle-exclamation-svgrepo-com.svg' %}" alt="Icono de parámetros" width="24" height="24" style="margin-right: 8px;">
+            Parámetros de operación
+          </h1>
+          <p>Modifica los parámetros de operación para las estaciones.</p>
+          <form>
+            <div class="nice-form-group">
+              <label>Voltaje 1</label>
+              <small>Voltaje del panel solar</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Voltaje 2</label>
+              <small>Voltaje del aerogenerador</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Voltaje 3</label>
+              <small>Voltaje de carga de batería</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Voltaje 4</label>
+              <small>Voltaje de CFE</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Voltaje 5</label>
+              <small>Voltaje de entrada al inversor</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Intensidad 1</label>
+              <small>Corriente del módulo regulador</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Intensidad 2</label>
+              <small>Corriente del módulo inversor</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+            <div class="nice-form-group">
+              <label>Temperatura</label>
+              <small>Temperatura del banco de baterías</small>
+              <input type="number" placeholder="Mín." disabled />
+              <input type="number" placeholder="Máx." disabled />
+            </div>
+          </form>
+          <details>
+            <summary>
+              <div class="toggle-code" onclick="window.location.href='reset.html'; return false;">
+                <img src="{% static 'icons/file-pencil-alt-svgrepo-com.svg' %}" width="18" height="18" style="margin-right: 8px;">
+                <b>Modificar</b>
+              </div>
+            </summary>
+          </details>
+        </section>
+        <section>
+          <div class="href-target" id="graficas"></div>
+          <h1>
+            <img src="{% static 'icons/chart-pie-alt-1-svgrepo-com.svg' %}" alt="Icono de gráficas" width="24" height="24" style="margin-right: 8px;">
+            Gráficas
+          </h1>
+          <p>Analiza los gráficos de mediciones.</p>
+          <div>
+            <img src="{% static 'images/grafica.png' %}" alt="Gráfica de muestra" width="100%" height="100%">
+          </div>
+          <details>
+            <summary>
+              <div class="toggle-code" onclick="window.location.href='reset.html'; return false;">
+                <img src="{% static 'icons/file-plus-alt-svgrepo-com.svg' %}" width="16" height="16" style="margin-right: 8px;">
+                Ver más
+              </div>
+            </summary>
+          </details>
+        </section>
+        <footer>Trabajo Terminal 2024-B068</footer>
+      </main>
+    </div>
+  </body>
+</html>
+

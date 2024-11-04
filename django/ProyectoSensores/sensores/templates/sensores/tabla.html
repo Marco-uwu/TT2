@@ -1,0 +1,49 @@
+<!-- sensores/templates/sensores/tabla.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos de Sensores</title>
+    <style>
+        /* Estilos similares a los anteriores */
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <div class="table-title">Datos de Sensores</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Voltaje 1</th>
+                    <th>Voltaje 2</th>
+                    <th>Voltaje 3</th>
+                    <th>Voltaje 4</th>
+                    <th>Voltaje 5</th>
+                    <th>Intensidad 1</th>
+                    <th>Intensidad 2</th>
+                    <th>Temperatura</th>
+                    <th>Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dato in datos %}
+                <tr>
+                    <td>{{ dato.id }}</td>
+                    <td>{{ dato.voltaje1 }}V</td>
+                    <td>{{ dato.voltaje2 }}V</td>
+                    <td>{{ dato.voltaje3 }}V</td>
+                    <td>{{ dato.voltaje4 }}V</td>
+                    <td>{{ dato.voltaje5 }}V</td>
+                    <td>{{ dato.intensidad1 }}A</td>
+                    <td>{{ dato.intensidad2 }}A</td>
+                    <td>{{ dato.temperatura }}°C <button class="force-off-btn">Forzar apagado</button></td>
+                    <td>{{ dato.hora|date:"H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
