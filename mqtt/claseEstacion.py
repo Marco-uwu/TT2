@@ -24,14 +24,15 @@ class Estacion:
         self.temperatura = temperatura
 
     def simular_valores(self):
-        self.voltaje_1 = random.uniform(10.0, 12.0)
-        self.voltaje_2 = random.uniform(10.0, 12.0)
-        self.voltaje_3 = random.uniform(10.0, 12.0)
-        self.voltaje_4 = random.uniform(100.0, 140.0)
-        self.voltaje_5 = random.uniform(10.0, 12.0)
-        self.intensidad_1 = random.uniform(16.0, 30.0)
-        self.intensidad_2 = random.uniform(16.0, 30.0)
-        self.temperatura = random.uniform(25.0, 45.0)
+        self.voltaje_1 = round(random.uniform(10.0, 12.0), 2)
+        self.voltaje_2 = round(random.uniform(10.0, 12.0), 2)
+        self.voltaje_3 = round(random.uniform(10.0, 12.0), 2)
+        self.voltaje_4 = round(random.uniform(100.0, 140.0), 2)
+        self.voltaje_5 = round(random.uniform(10.0, 12.0), 2)
+        self.intensidad_1 = round(random.uniform(16.0, 30.0), 2)
+        self.intensidad_2 = round(random.uniform(16.0, 30.0), 2)
+        self.temperatura = round(random.uniform(25.0, 45.0), 2)
+
 
     def to_bytearray(self):
         return struct.pack(
@@ -58,3 +59,16 @@ class Estacion:
         return (f"Estacion(dir_mac={self.dir_mac}, voltaje_1={self.voltaje_1}, voltaje_2={self.voltaje_2}, "
                 f"voltaje_3={self.voltaje_3}, voltaje_4={self.voltaje_4}, voltaje_5={self.voltaje_5}, "
                 f"intensidad_1={self.intensidad_1}, intensidad_2={self.intensidad_2}, temperatura={self.temperatura})")
+
+    def obtener_medicion(self, nombre_variable):
+        valor = getattr(self, nombre_variable)
+        if "voltaje" in nombre_variable:
+            tipo_medicion = "V"
+        elif "intensidad" in nombre_variable:
+            tipo_medicion = "I"
+        elif "temperatura" in nombre_variable:
+            tipo_medicion = "T"
+        else:
+            raise ValueError("Nombre de variable no válido")
+        
+        return [nombre_variable, valor, tipo_medicion, self.dir_mac]
