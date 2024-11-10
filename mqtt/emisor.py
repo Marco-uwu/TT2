@@ -1,10 +1,11 @@
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 import paho.mqtt.client as mqtt
 import time
 import uuid
 
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 from claseEstacion import Estacion
 
 # Función de callback cuando un mensaje es recibido
@@ -28,29 +29,51 @@ def enviar_mensaje(client, topic, mensaje):
 # Obtener la dirección MAC
 def obtener_mac():
     mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 8 * 6, 8)][::-1])
-    mac_address = mac_address.upper();
+    mac_address = mac_address.upper()
     return mac_address
 
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Conectar al cliente MongoDB
+clienteMongo = MongoClient("mongodb://localhost:27017/")  # Cambia el URI si es necesario
+db = clienteMongo['Prueba_cargador']
+collection = db['Mediciones']
+
 # Crear una instancia del cliente MQTT
-client = mqtt.Client()
-client.on_message = on_message
-client.on_disconnect = on_disconnect
-client.connect("192.168.0.101", 1883, 60)
-client.subscribe("estaciones/estacion_1/alertas")
+clienteMqtt = mqtt.Client()
+clienteMqtt.on_message = on_message
+clienteMqtt.on_disconnect = on_disconnect
+clienteMqtt.connect("192.168.0.101", 1883, 60)
+clienteMqtt.subscribe("estaciones/estacion_1/alertas")
 
 try:
+    # Crear una instancia de la clase Estacion con la mac
     mac_address = obtener_mac()
     estacion = Estacion(mac_address)
-    while True:
-        estacion.simular_valores()
-        print(estacion.obtener_medicion("voltaje_1"))
-        mensaje = estacion.to_bytearray()
-        enviar_mensaje(client, "estaciones/estacion_1", mensaje)
-        print(estacion)
-        client.loop_start()
-        time.sleep(2)
+    
+    # Crear el Change Stream para monitorear la colección
+    with collection.watch() as stream:
+        print("Monitoreando nuevos registros en la colección 'Mediciones'...")
+        for change in stream:
+            # Verificar si el cambio es de tipo 'insert'
+            if change["operationType"] == "insert":
+                
+                # Obtener el documento insertado
+                new_document = change["fullDocument"]
+                print("Nuevo registro detectado:")
+                print(new_document)
+                
+                mensaje = estacion.to_bytearray()
+                enviar_mensaje(clienteMqtt, "estaciones/estacion_1", mensaje)
+
+except PyMongoError as e:
+    print(f"Ocurrió un error al monitorear la colección: {e}")
 except KeyboardInterrupt:
-    print("Interrupción del teclado recibida, cerrando el cliente MQTT.")
-    client.disconnect()
-    client.loop_stop()  
+    print("Monitoreo interrumpido por el usuario.")
+finally:
+    # Cerrar las conexiones
+    clienteMongo.close()
+    clienteMqtt.disconnect()
+    clienteMqtt.loop_stop()  
+

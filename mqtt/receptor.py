@@ -17,12 +17,15 @@ def on_message(client, userdata, msg):
                             VALUES (%s, %s, %s, (SELECT id FROM estaciones WHERE dir_mac = %s))"""
     estacion = Estacion.from_bytearray(msg.payload)
     cursor.execute(query, [estacion.dir_mac])
-    resultado = cursor.fetchone()[0]
-    for variable in variables:
-        cursor.execute(queryMediciones, estacion.obtener_medicion(variable))
-    conexion.commit()
-    print(resultado)
 
+    resultado = cursor.fetchone()
+    if (resultado):
+        for variable in variables:
+            cursor.execute(queryMediciones, estacion.obtener_medicion(variable))
+        conexion.commit()
+        print(resultado)
+    else:
+        print(f"La direccion {estacion.dir_mac} no corresponde a una estacion")
 
 # Función para enviar un mensaje
 def enviar_mensaje(client, topic, mensaje):
