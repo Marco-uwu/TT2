@@ -36,39 +36,39 @@ class Estacion:
 
     def to_bytearray(self):
         return struct.pack(
-            '17s 5f 2f f', 
+            '16s 20s 20s 20s 20s 20s 20s 20s 20s', 
             self.dir_mac.encode('utf-8'), 
-            self.voltaje_1, self.voltaje_2, self.voltaje_3, self.voltaje_4, self.voltaje_5, 
-            self.intensidad_1, self.intensidad_2, 
-            self.temperatura
+            str(self.voltaje_1).encode('utf-8'), 
+            str(self.voltaje_2).encode('utf-8'), 
+            str(self.voltaje_3).encode('utf-8'), 
+            str(self.voltaje_4).encode('utf-8'), 
+            str(self.voltaje_5).encode('utf-8'), 
+            str(self.intensidad_1).encode('utf-8'), 
+            str(self.intensidad_2).encode('utf-8'), 
+            str(self.temperatura).encode('utf-8')
         )
 
     @classmethod
     def from_bytearray(cls, data):
-        # Desempaqueta los datos binarios
-        unpacked_data = struct.unpack('17s 5f 2f f', data)
+        unpacked_data = struct.unpack('16s 20s 20s 20s 20s 20s 20s 20s 20s', data)
         dir_mac = unpacked_data[0].decode('utf-8').strip('\x00')
         return cls(
             dir_mac,
-            unpacked_data[1], unpacked_data[2], unpacked_data[3], unpacked_data[4], unpacked_data[5],
-            unpacked_data[6], unpacked_data[7],
-            unpacked_data[8]
+            float(unpacked_data[1].decode('utf-8').strip('\x00')),
+            float(unpacked_data[2].decode('utf-8').strip('\x00')),
+            float(unpacked_data[3].decode('utf-8').strip('\x00')),
+            float(unpacked_data[4].decode('utf-8').strip('\x00')),
+            float(unpacked_data[5].decode('utf-8').strip('\x00')),
+            float(unpacked_data[6].decode('utf-8').strip('\x00')),
+            float(unpacked_data[7].decode('utf-8').strip('\x00')),
+            float(unpacked_data[8].decode('utf-8').strip('\x00'))
         )
-	
+    
     def __str__(self):
         return (f"Estacion(dir_mac={self.dir_mac}, voltaje_1={self.voltaje_1}, voltaje_2={self.voltaje_2}, "
                 f"voltaje_3={self.voltaje_3}, voltaje_4={self.voltaje_4}, voltaje_5={self.voltaje_5}, "
                 f"intensidad_1={self.intensidad_1}, intensidad_2={self.intensidad_2}, temperatura={self.temperatura})")
 
-    def obtener_medicion(self, nombre_variable):
-        valor = getattr(self, nombre_variable)
-        if "voltaje" in nombre_variable:
-            tipo_medicion = "V"
-        elif "intensidad" in nombre_variable:
-            tipo_medicion = "I"
-        elif "temperatura" in nombre_variable:
-            tipo_medicion = "T"
-        else:
-            raise ValueError("Nombre de variable no válido")
-        
-        return [nombre_variable, valor, tipo_medicion, self.dir_mac]
+    def obtener_mediciones(self):
+        arreglo = [self.voltaje_1, self.voltaje_2, self.voltaje_3, self.voltaje_4, self.voltaje_5, self.intensidad_1, self.intensidad_2, self.temperatura]
+        return arreglo

@@ -1,31 +1,33 @@
-import mysql.connector
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-import paho.mqtt.client as mqtt
 import time
-
+import base64
+import warnings
+import mysql.connector
+import paho.mqtt.client as mqtt
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from claseEstacion import Estacion
-
 
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
     global conexion
-    variables = ['voltaje_1', 'voltaje_2', 'voltaje_3', 'voltaje_4', 'voltaje_5', 'intensidad_1', 'intensidad_2', 'temperatura']
-    query = "SELECT nombre FROM estaciones WHERE dir_mac = %s"
-    queryMediciones = """INSERT INTO mediciones (tipo, valor, tipo_medicion, estacion_id)
-                            VALUES (%s, %s, %s, (SELECT id FROM estaciones WHERE dir_mac = %s))"""
+    tema = msg.topic
     estacion = Estacion.from_bytearray(msg.payload)
-    cursor.execute(query, [estacion.dir_mac])
-
-    resultado = cursor.fetchone()
-    if (resultado):
-        for variable in variables:
-            cursor.execute(queryMediciones, estacion.obtener_medicion(variable))
+    direccion_estacion = estacion.dir_mac
+    
+    query = "SELECT EXISTS (SELECT 1 FROM estaciones WHERE dir_mac = %s) AS existe"
+    cursor.execute(query, [direccion_estacion])
+    resultado = cursor.fetchone()[0]
+    existe = bool(resultado)
+    
+    if (existe):
+        queryMediciones = """INSERT INTO mediciones (valor, id_estacion, id_tipo_medicion) VALUES 
+                            (%s, (SELECT id FROM estaciones WHERE dir_mac = %s), %s);"""
+        mediciones = estacion.obtener_mediciones()
+        for tipo, medicion in enumerate(mediciones, start = 1):
+            cursor.execute(queryMediciones, [medicion, direccion_estacion, tipo])
         conexion.commit()
-        print(resultado)
+        print("Registro guardado: ", estacion)
     else:
-        print(f"La direccion {estacion.dir_mac} no corresponde a una estacion")
+        print(f"La direccion {direccion_estacion} no corresponde a una estacion")
 
 # Función para enviar un mensaje
 def enviar_mensaje(client, topic, mensaje):
@@ -54,7 +56,7 @@ client = mqtt.Client()
 client.on_message = on_message
 client.on_disconnect = on_disconnect
 client.connect("localhost", 1883, 60)
-client.subscribe("estaciones/+")
+client.subscribe("estaciones/mediciones/+")
 
 try:
     while True:

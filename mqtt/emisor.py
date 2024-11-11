@@ -1,12 +1,12 @@
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-import paho.mqtt.client as mqtt
 import time
 import uuid
-
+import base64
+import warnings
+import paho.mqtt.client as mqtt
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
 from claseEstacion import Estacion
+from pymongo.errors import PyMongoError
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
@@ -21,16 +21,13 @@ def on_disconnect(client, userdata, rc):
         print("Desconexión inesperada del cliente MQTT")
 
 
-# Función para enviar un mensaje
-def enviar_mensaje(client, topic, mensaje):
-    client.publish(topic, mensaje)
-
-
 # Obtener la dirección MAC
 def obtener_mac():
-    mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 8 * 6, 8)][::-1])
-    mac_address = mac_address.upper()
-    return mac_address
+    dir_mac = ''.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 8 * 6, 8)][::-1])
+    dir_mac = dir_mac.upper()
+    mac_bytes = dir_mac.encode('utf-8')
+    mac_base64 = base64.urlsafe_b64encode(mac_bytes).decode('utf-8')
+    return mac_base64
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,12 +42,14 @@ clienteMqtt = mqtt.Client()
 clienteMqtt.on_message = on_message
 clienteMqtt.on_disconnect = on_disconnect
 clienteMqtt.connect("192.168.0.101", 1883, 60)
-clienteMqtt.subscribe("estaciones/estacion_1/alertas")
+dir_mac = obtener_mac()
+direccionMqtt = "estaciones/mediciones/" + dir_mac
+print(direccionMqtt)
 
 try:
     # Crear una instancia de la clase Estacion con la mac
-    mac_address = obtener_mac()
-    estacion = Estacion(mac_address)
+    estacion = Estacion(dir_mac)
+    clienteMqtt.subscribe("estaciones/alertas/" + dir_mac)
     
     # Crear el Change Stream para monitorear la colección
     with collection.watch() as stream:
@@ -61,11 +60,22 @@ try:
                 
                 # Obtener el documento insertado
                 new_document = change["fullDocument"]
-                print("Nuevo registro detectado:")
-                print(new_document)
+                
+                v1 = float(new_document.get("V_Panel"))
+                v2 = float(new_document.get("V_Aerogenerador"))
+                v3 = float(new_document.get("V_Bateria"))
+                v4 = float(new_document.get("V_CFE"))
+                v5 = float(new_document.get("V_Inversor"))
+                i1 = float(new_document.get("I_Entrada"))
+                i2 = float(new_document.get("I_Inversor"))
+                t =  float(new_document.get("T_Bateria"))
+                
+                estacion.asignar_valores(v1, v2, v3, v4, v5, i1, i2, t)
+                print("Nuevo registro detectado:\n", estacion)
                 
                 mensaje = estacion.to_bytearray()
-                enviar_mensaje(clienteMqtt, "estaciones/estacion_1", mensaje)
+                print("Registro enviado:\n", estacion.from_bytearray(mensaje))
+                clienteMqtt.publish(direccionMqtt, mensaje)
 
 except PyMongoError as e:
     print(f"Ocurrió un error al monitorear la colección: {e}")
