@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
-    print(f"Mensaje recibido: {msg.payload.decode()} en el tema {msg.topic}\n")
+    print("\nALERTA!!: " + msg.payload.decode() + "\n")
 
 
 # Función de callback cuando el cliente se desconecta
@@ -22,7 +22,7 @@ def on_disconnect(client, userdata, rc):
 
 
 # Obtener la dirección MAC
-def obtener_mac():
+def obtener_dir():
     dir_mac = ''.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 8 * 6, 8)][::-1])
     dir_mac = dir_mac.upper()
     mac_bytes = dir_mac.encode('utf-8')
@@ -42,14 +42,17 @@ clienteMqtt = mqtt.Client()
 clienteMqtt.on_message = on_message
 clienteMqtt.on_disconnect = on_disconnect
 clienteMqtt.connect("192.168.0.101", 1883, 60)
-dir_mac = obtener_mac()
+
+dir_mac = obtener_dir()
 direccionMqtt = "estaciones/mediciones/" + dir_mac
-print(direccionMqtt)
+direccionAlertas = "estaciones/alertas/" + dir_mac
+clienteMqtt.subscribe(direccionAlertas)
+
+clienteMqtt.loop_start()
 
 try:
     # Crear una instancia de la clase Estacion con la mac
     estacion = Estacion(dir_mac)
-    clienteMqtt.subscribe("estaciones/alertas/" + dir_mac)
     
     # Crear el Change Stream para monitorear la colección
     with collection.watch() as stream:
@@ -74,7 +77,6 @@ try:
                 print("Nuevo registro detectado:\n", estacion)
                 
                 mensaje = estacion.to_bytearray()
-                print("Registro enviado:\n", estacion.from_bytearray(mensaje))
                 clienteMqtt.publish(direccionMqtt, mensaje)
 
 except PyMongoError as e:

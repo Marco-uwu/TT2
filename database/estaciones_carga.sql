@@ -52,7 +52,8 @@ CREATE TABLE parametros_medicion (
     valor_max DECIMAL(5,2) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (id_tipo_medicion) REFERENCES tipos_medicion(id),
-    FOREIGN KEY (id_regla) REFERENCES reglas_medicion(id)
+    FOREIGN KEY (id_regla) REFERENCES reglas_medicion(id),
+	UNIQUE (id_regla, id_tipo_medicion)
 );
 
 INSERT INTO tipos_medicion (descripcion, tipo_medicion) VALUES 

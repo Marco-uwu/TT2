@@ -8,15 +8,16 @@ from claseEstacion import Estacion
 
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
-    global conexion
-    tema = msg.topic
+    
     estacion = Estacion.from_bytearray(msg.payload)
     direccion_estacion = estacion.dir_mac
+    tema_mqtt = "estaciones/alertas/" + direccion_estacion
     
     query = "SELECT EXISTS (SELECT 1 FROM estaciones WHERE dir_mac = %s) AS existe"
     cursor.execute(query, [direccion_estacion])
-    resultado = cursor.fetchone()[0]
-    existe = bool(resultado)
+    existe = bool(cursor.fetchone()[0])
+    
+    clienteMqtt.publish(tema_mqtt, ">> Mensaje desde el servidor!")
     
     if (existe):
         queryMediciones = """INSERT INTO mediciones (valor, id_estacion, id_tipo_medicion) VALUES 
@@ -42,6 +43,19 @@ def on_disconnect(client, userdata, rc):
         print("Desconexión inesperada del cliente MQTT")
 
 
+def convert_to_float(data):
+    converted_data = []
+    for item in data:
+        values = tuple(float(val) if isinstance(val, Decimal) else val for val in item)
+        converted_data.append(values)
+    return converted_data
+
+def verifica_medicion(medicion, parametros):
+    if(medicion > parametros[1] or medicion < parametros[0]):
+        return False
+    else:
+        return True
+
 # Conectar a la base de datos
 conexion = mysql.connector.connect(
     host="localhost",
@@ -52,18 +66,15 @@ conexion = mysql.connector.connect(
 cursor = conexion.cursor()
 
 # Crear una instancia del cliente MQTT
-client = mqtt.Client()
-client.on_message = on_message
-client.on_disconnect = on_disconnect
-client.connect("localhost", 1883, 60)
-client.subscribe("estaciones/mediciones/+")
+clienteMqtt = mqtt.Client()
+clienteMqtt.on_message = on_message
+clienteMqtt.on_disconnect = on_disconnect
+clienteMqtt.connect("localhost", 1883, 60)
+clienteMqtt.subscribe("estaciones/mediciones/+")
 
 try:
-    while True:
-        client.loop_start()
-        enviar_mensaje(client, "estaciones/estacion_1/alertas", "respuesta")
-        time.sleep(2)
+    clienteMqtt.loop_forever()
 except KeyboardInterrupt:
     print("Interrupción del teclado recibida, cerrando el cliente MQTT.")
-    client.disconnect()
-    client.loop_stop()
+    clienteMqtt.disconnect()
+    clienteMqtt.loop_stop()
