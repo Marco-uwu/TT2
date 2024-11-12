@@ -45,7 +45,7 @@ clienteMqtt.connect("192.168.0.101", 1883, 60)
 
 dir_mac = obtener_dir()
 direccionMqtt = "estaciones/mediciones/" + dir_mac
-direccionAlertas = "estaciones/alertas/" + dir_mac
+direccionAlertas = "estaciones/alertas/" + dir_mac + "/+"
 clienteMqtt.subscribe(direccionAlertas)
 
 clienteMqtt.loop_start()
@@ -74,7 +74,7 @@ try:
                 t =  float(new_document.get("T_Bateria"))
                 
                 estacion.asignar_valores(v1, v2, v3, v4, v5, i1, i2, t)
-                print("Nuevo registro detectado:\n", estacion)
+                print("\nNuevo registro detectado! Enviando...\n")
                 
                 mensaje = estacion.to_bytearray()
                 clienteMqtt.publish(direccionMqtt, mensaje)
