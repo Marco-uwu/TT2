@@ -6,14 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Estaciones de Carga</title>
     <link rel="stylesheet" href="{% static 'css/index.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}" />
     <link rel="icon" href="{% static 'icons/circle-water-plug-svgrepo-com.svg' %}" type="image/svg+xml">
   </head>
   <body>
-    <section style="background-color: #f9f9f9;">
-      <div>
-        <h1 style="font-size:40px; text-align:center;">Estaciones de Carga</h1>
-      </div>
-    </section>
+
+        <section style="background-color: #FFFF;">
+          <div>
+                <h1 class="centered-title">
+                  <img src="{% static 'icons/battery-bolt-svgrepo-com.svg' %}" width="55" height="55" style="margin-right: 16px;">
+                  Estaciones de Carga
+                </h1>
+          </div>
+        </section>
+
+
     <div class="demo-page">
       <div class="demo-page-navigation">
         <nav>
@@ -54,21 +61,33 @@
                 <th>Ubicación</th>
                 <th>Estado</th>
               </tr>
-              	{% for estacion in estaciones %}
-        	<tr>
-		<td>{{ estacion.nombre }}</td>
-            	<td>{{ estacion.ubicacion }}</td>
-            	<td>{{ estacion.estado }}</td>
-        	</tr>
-        	{% endfor %}
+                {% for estacion in estaciones %}
+                <tr>
+                <td>{{ estacion.nombre }}</td>
+		<td style="text-align: center;"><a href="{{ estacion.ubicacion }}">Link</a></td>
+				<td style="display: flex;justify-content: center;align-items: center;" >
+					<button class="
+					{% if estacion.estado == 'Disponible' %}
+						boton_disponible
+					{% elif estacion.estado == 'No disponible' %}
+						boton_no_disponible
+					{% elif estacion.estado == 'Fuera de servicio' %}
+						boton_fuera_servicio
+					{% else %}
+						boton_mantenimiento
+					{% endif %}
+					" disabled> {{ estacion.estado }} </button>
+				</td>
+                </tr>
+                {% endfor %}
             </table>
           </div>
           <details>
             <summary>
-              <div class="toggle-code" onclick="window.location.href='reset.html'; return false;">
-                <img src="{% static 'icons/file-plus-alt-svgrepo-com.svg' %}" width="16" height="16" style="margin-right: 8px;">
-                Ver más
-              </div>
+              <button class="red-button">
+                                <img src="{% static 'icons/file-plus-alt-svgrepo-com.svg' %}" width="24" height="24">
+                                <span class="text">Ver más</span>
+                          </button>
             </summary>
           </details>
         </section>
@@ -78,71 +97,32 @@
             <img src="{% static 'icons/message-circle-exclamation-svgrepo-com.svg' %}" alt="Icono de parámetros" width="24" height="24" style="margin-right: 8px;">
             Parámetros de operación
           </h1>
-	  <p>Modifica los parámetros de operación para las estaciones.</p>
-          <form>
-            <div class="nice-form-group">
-              <label>Voltaje 1</label>
-              <small>Voltaje del panel solar</small>
-	      <input type="number" placeholder="{{ parametros.0.valor_min }}" disabled />
-	      <input type="number" placeholder="{{ parametros.0.valor_ide }}" disabled />
-              <input type="number" placeholder="{{ parametros.0.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Voltaje 2</label>
-              <small>Voltaje del aerogenerador</small>
-              <input type="number" placeholder="{{ parametros.1.valor_min }}" disabled />
-	      <input type="number" placeholder="{{ parametros.1.valor_ide }}" disabled />
-              <input type="number" placeholder="{{ parametros.1.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Voltaje 3</label>
-              <small>Voltaje de carga de batería</small>
-              <input type="number" placeholder="{{ parametros.2.valor_min }}" disabled />
-              <input type="number" placeholder="{{ parametros.2.valor_ide }}" disabled />
-	      <input type="number" placeholder="{{ parametros.2.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Voltaje 4</label>
-              <small>Voltaje de CFE</small>
-              <input type="number" placeholder="{{ parametros.3.valor_min }}" disabled />
-              <input type="number" placeholder="{{ parametros.3.valor_ide }}" disabled />
-	      <input type="number" placeholder="{{ parametros.3.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Voltaje 5</label>
-              <small>Voltaje de entrada al inversor</small>
-              <input type="number" placeholder="{{ parametros.4.valor_min }}" disabled />
-              <input type="number" placeholder="{{ parametros.4.valor_ide }}" disabled /> 
-	      <input type="number" placeholder="{{ parametros.4.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Intensidad 1</label>
-              <small>Corriente del módulo regulador</small>
-              <input type="number" placeholder="{{ parametros.5.valor_min }}" disabled />
-              <input type="number" placeholder="{{ parametros.5.valor_ide }}" disabled /> 
-	      <input type="number" placeholder="{{ parametros.5.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Intensidad 2</label>
-              <small>Corriente del módulo inversor</small>
-              <input type="number" placeholder="{{ parametros.6.valor_min }}" disabled />
-              <input type="number" placeholder="{{ parametros.6.valor_ide }}" disabled /> 
-	      <input type="number" placeholder="{{ parametros.6.valor_max }}" disabled />
-            </div>
-            <div class="nice-form-group">
-              <label>Temperatura</label>
-              <small>Temperatura del banco de baterías</small>
-              <input type="number" placeholder="{{ parametros.7.valor_min }}" disabled />
-              <input type="number" placeholder="{{ parametros.7.valor_ide }}" disabled /> 
-	      <input type="number" placeholder="{{ parametros.7.valor_max }}" disabled />
-            </div>
-          </form>
+          <p>Modifica los parámetros de operación para las estaciones.</p>
+                        {% for parametro in parametros %}
+                <h1>{% cycle 'Voltaje 1' 'Voltaje 2' 'Voltaje 3' 'Voltaje 4' 'Voltaje 5' 'Intensidad 1'  'Intensidad 2' 'Temperatura'%}</h1>
+                <small>{% cycle 'Voltaje de entrada al inversor' 'Voltaje del aerogenerador' 'Voltaje de carga de batería' 'Voltaje de CFE' 'Voltaje de entrada al inversor' 'Corriente del módulo regulador' 'Corriente del módulo inversor' 'Temperatura del banco de baterías'%}</small>
+
+                                <table>
+                                        <tr>
+                                                        <th>Mínimo</th>
+                                                        <th>Óptimo</th>
+                                                        <th>Máximo</th>
+                                        </tr>
+                                        <tr>
+                                                        <td style="color:Blue">{{ parametro.valor_min }} {% cycle 'V' 'V' 'V' 'V' 'V' 'A' 'A' '°C'%}</td>
+                                                        <td style="color:Green">{{ parametro.valor_ide }} {% cycle 'V' 'V' 'V' 'V' 'V' 'A' 'A' '°C'%}</td>
+                                                        <td style="color:Red">{{ parametro.valor_max }} {% cycle 'V' 'V' 'V' 'V' 'V' 'A' 'A' '°C'%}</td>
+                                        </tr>
+                                </table>
+                                <br>
+                        {% endfor %}
+
           <details>
             <summary>
-              <div class="toggle-code" onclick="window.location.href='reset.html'; return false;">
-                <img src="{% static 'icons/file-pencil-alt-svgrepo-com.svg' %}" width="18" height="18" style="margin-right: 8px;">
-                <b>Modificar</b>
-              </div>
+                                <button class="red-button">
+                                        <img src="{% static 'icons/file-pencil-alt-svgrepo-com.svg' %}" width="24" height="24">
+                                        <span class="text">Modificar</span>
+                                </button>
             </summary>
           </details>
         </section>
@@ -154,14 +134,14 @@
           </h1>
           <p>Analiza los gráficos de mediciones.</p>
           <div>
-            <img src="{% static 'images/grafica.png' %}" alt="Gráfica de muestra" width="100%" height="100%">
+                  <img src="{% static 'images/grafica.png'%}" alt="Gráfica de muestra" width="100%" height="100%">
           </div>
           <details>
             <summary>
-              <div class="toggle-code" onclick="window.location.href='reset.html'; return false;">
-                <img src="{% static 'icons/file-plus-alt-svgrepo-com.svg' %}" width="16" height="16" style="margin-right: 8px;">
-                Ver más
-              </div>
+                                <button class="red-button">
+                                        <img src="{% static 'icons/file-plus-alt-svgrepo-com.svg' %}" width="24" height="24">
+                                        <span class="text">Ver más</span>
+                                </button>
             </summary>
           </details>
         </section>
@@ -170,6 +150,3 @@
     </div>
   </body>
 </html>
-
-
-

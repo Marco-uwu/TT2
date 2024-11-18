@@ -1,0 +1,151 @@
+/* Botón de Ver más */
+.red-button {
+  background-color: #10b981;
+  border: 2px solid #10b981;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  width: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.red-button img {
+  position: absolute;
+  left: 15px; /* Ajusta según sea necesario */
+}
+@media (max-width: 600px) {
+  .red-button img {
+    display: none;
+  }
+}
+
+.red-button .text {
+  flex: 1;
+  text-align: center;
+}
+
+.red-button:hover {
+  background-color: #0c9467;
+  border-color: #0c9467;
+}
+
+/* Sección summary */
+summary {
+  display: flex;
+  justify-content: flex-end; /* Alinea el contenido a la derecha */
+}
+
+/* Tabla de estaciones */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background-color: #11B981;
+    color: white;
+	font-weight: 500;
+    z-index: 1;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
+.centered-title {
+  font-size: 40px;
+  text-align: center;
+  color: #11B981;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Texto estados */
+
+.boton_disponible {
+  background-color: #13D796;
+  border: 2px solid #10b981;
+  color: #FFFFFF;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.boton_no_disponible {
+  background-color: #D63A13;
+  border: 2px solid #B91311;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.boton_mantenimiento {
+  background-color: #D6C713;
+  border: 2px solid #B9AB11;
+  color: #4E4E4E;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.boton_fuera_servicio {
+  background-color: #BDBDBD;
+  border: 2px solid #929292;
+  color: #4E4E4E;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
