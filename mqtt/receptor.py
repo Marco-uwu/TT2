@@ -10,21 +10,24 @@ from funcionesServidor import *
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
     
-    estacion = Estacion.from_bytearray(msg.payload)
-    direccion_estacion = estacion.dir_mac
-    tema_mqtt = "estaciones/alertas/" + direccion_estacion
-    
-    existe = existe_cliente(cursor, direccion_estacion)
-    
-    if (existe):
-        inserta_mediciones(estacion, conexion, cursor)
-        errores = verifica_mediciones(estacion, parametros)
-        if(errores):
-            clienteMqtt.publish(tema_mqtt + "/shutdown", ">> Mediciones fuera de límites!")
+    topic = msg.topic
+    print(topic)
+    if topic.startswith("estaciones/mediciones/"):
+        estacion = Estacion.from_bytearray(msg.payload)
+        direccion_estacion = estacion.dir_mac
+        tema_mqtt = "estaciones/alertas/" + direccion_estacion
+        
+        existe = existe_cliente(cursor, direccion_estacion)
+        
+        if (existe):
+            inserta_mediciones(estacion, conexion, cursor)
+            errores = verifica_mediciones(estacion, parametros)
+            if(errores):
+                clienteMqtt.publish(tema_mqtt + "/shutdown", ">> Mediciones fuera de límites!")
+            else:
+                clienteMqtt.publish(tema_mqtt+ "/ok", ">> OK!")
         else:
-            clienteMqtt.publish(tema_mqtt+ "/ok", ">> OK!")
-    else:
-        print(f"La direccion {direccion_estacion} no corresponde a una estacion")
+            print(f"Estación no registrada, solicite ayuda con el administrador.")
 
 
 # Función de callback cuando el cliente se desconecta
