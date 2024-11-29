@@ -20,10 +20,9 @@ def on_message(client, userdata, msg):
         existe = existe_cliente(cursor, direccion_estacion)
         
         if (existe):
-            inserta_mediciones(estacion, conexion, cursor)
-            errores = verifica_mediciones(estacion, parametros)
-            if(errores):
-                clienteMqtt.publish(tema_mqtt + "/shutdown", ">> Mediciones fuera de límites!")
+            errores = inserta_mediciones(estacion, conexion, cursor)
+            if isinstance(errores, list):
+                clienteMqtt.publish(tema_mqtt + "/shutdown", f">> Mediciones fuera de límites! {errores}")
             else:
                 clienteMqtt.publish(tema_mqtt+ "/ok", ">> OK!")
         else:
