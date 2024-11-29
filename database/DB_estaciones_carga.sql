@@ -56,6 +56,15 @@ CREATE TABLE parametros_medicion (
 	UNIQUE (id_regla, id_tipo_medicion)
 );
 
+-- Crear la tabla 'reportes'
+CREATE TABLE reportes (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_medicion INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_medicion) REFERENCES mediciones(id)
+);
+
+
 INSERT INTO tipos_medicion (descripcion, tipo_medicion) VALUES 
 ('voltaje_1', 'V'),
 ('voltaje_2', 'V'),
