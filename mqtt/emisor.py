@@ -78,6 +78,7 @@ try:
                 
                 mensaje = estacion.to_bytearray()
                 clienteMqtt.publish(direccionMqtt, mensaje)
+                clienteMqtt.publish("estaciones/estado/disponible", mensaje)
 
 except PyMongoError as e:
     print(f"Ocurrió un error al monitorear la colección: {e}")

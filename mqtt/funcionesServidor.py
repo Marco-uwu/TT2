@@ -56,7 +56,7 @@ def inserta_mediciones(estacion, conexion, cursor):
                 reportes.append(resultado)
 
         conexion.commit()
-        print(" > Nuevos registros almacenados")
+        #print(" > Nuevos registros almacenados")
 
         return reportes if reportes else True
     except mysql.connector.Error as err:
@@ -93,4 +93,24 @@ def verifica_mediciones(estacion, arregloParametros):
     return mediciones_fuera_de_limites
 
 
-
+def actualizar_estado_por_mac(conexion, cursor, dir_mac, nuevo_estado):
+    # Consulta SQL para actualizar el estado
+    query = """
+    UPDATE estaciones
+    SET estado = %s
+    WHERE dir_mac = %s;
+    """
+    
+    try:
+        # Ejecutar la consulta con los parámetros proporcionados
+        cursor.execute(query, (nuevo_estado, dir_mac))
+        
+        # Confirmar los cambios
+        conexion.commit()
+        
+        #print(f"Estado de la estación con dir_mac {dir_mac} actualizado a '{nuevo_estado}'.")
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al actualizar el estado: {err}")
+        conexion.rollback()
+        return False
