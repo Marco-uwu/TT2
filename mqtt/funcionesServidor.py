@@ -1,4 +1,5 @@
 from decimal import Decimal
+import mysql.connector
 
 def convert_to_float(data):
     converted_data = []
@@ -35,6 +36,35 @@ def inserta_mediciones(estacion, conexion, cursor):
     
     # Consulta para insertar en la tabla reportes
     queryInsertaReporte = """INSERT INTO reportes (id_medicion) VALUES (%s);"""
+    
+    queryVerificaSesion = """
+                            SELECT 
+                                IFNULL(
+                                    (SELECT 
+                                        CASE 
+                                            WHEN fecha_fin IS NOT NULL THEN TRUE
+                                            ELSE FALSE
+                                        END AS is_fecha_fin_not_null
+                                    FROM sesiones_carga
+                                    WHERE id_estacion = (SELECT id FROM estaciones WHERE dir_mac = %s)
+                                    ORDER BY fecha_inicio DESC
+                                    LIMIT 1), 
+                                    TRUE
+                                ) AS resultado;
+                          """
+    queryCreaSesion = """ INSERT INTO sesiones_carga (id_estacion) VALUES ((SELECT id FROM estaciones WHERE dir_mac = %s)); """
+
+    queryCierraSesion = """
+                        UPDATE sesiones_carga
+                        JOIN (
+                            SELECT id
+                            FROM sesiones_carga
+                            WHERE id_estacion = (SELECT id FROM estaciones WHERE dir_mac = %s)
+                            ORDER BY fecha_inicio DESC
+                            LIMIT 1
+                        ) AS subquery ON sesiones_carga.id = subquery.id
+                        SET fecha_fin = NOW();
+                        """
 
     mediciones = estacion.obtener_mediciones()
     
@@ -54,6 +84,26 @@ def inserta_mediciones(estacion, conexion, cursor):
                 # Insertar el reporte si hay un valor fuera de rango
                 cursor.execute(queryInsertaReporte, [id_medicion])
                 reportes.append(resultado)
+
+        intensidad_inversor = estacion.intensidad_2
+        voltaje_inversor = estacion.voltaje_5
+
+        cursor.execute(queryVerificaSesion, [estacion.dir_mac])
+        nueva_sesion = bool(cursor.fetchone()[0])
+        
+        if intensidad_inversor > 1:
+            potencia = intensidad_inversor * voltaje_inversor
+            cursor.execute(queryMediciones, [potencia, estacion.dir_mac, 9])
+            if nueva_sesion:
+                print(f"Crear nueva sesión en estacion: {estacion.dir_mac}")
+                cursor.execute(queryCreaSesion, [estacion.dir_mac])
+            else:
+                print("Guardar en sesión activa")
+        elif not nueva_sesion:
+            print("Cerrar sesión activa")
+            cursor.execute(queryCierraSesion, [estacion.dir_mac])
+        else:
+            print("Sin sesión activa, inserción de datos...")
 
         conexion.commit()
         #print(" > Nuevos registros almacenados")
