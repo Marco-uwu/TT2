@@ -25,8 +25,8 @@ def on_message(client, userdata, msg):
                 clienteMqtt.publish(tema_mqtt + "/shutdown", f">> Mediciones fuera de límites! {errores}")
             else:
                 clienteMqtt.publish(tema_mqtt+ "/ok", ">> OK!")
-        #else:
-            #print(f"Estación no registrada, solicite ayuda con el administrador.")
+        else:
+            print(f"Estación no registrada, solicite ayuda con el administrador.")
     elif topic.startswith("estaciones/estado/"):
         estacion = Estacion.from_bytearray(msg.payload)
         direccion_estacion = estacion.dir_mac
