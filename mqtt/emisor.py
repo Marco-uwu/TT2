@@ -10,7 +10,14 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
-    print("\nALERTA!!: " + msg.payload.decode() + "\n")
+    topic = msg.topic
+    print(f"Mensaje: {topic}")
+    if topic.endswith("/shutdown"):
+        print("\n - - - APAGAR ESTACIÓN - - -")
+        #print(f"PAYLOAD :{msg.payload}")
+        #clienteMqtt.publish("estaciones/estado/f_servicio", msg.payload)
+    else:
+        print("\nALERTA!!: " + msg.payload.decode() + "\n")
 
 
 # Función de callback cuando el cliente se desconecta
