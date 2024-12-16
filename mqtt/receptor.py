@@ -36,6 +36,8 @@ def on_message(client, userdata, msg):
                 actualizar_estado_por_mac(conexion, cursor, direccion_estacion, "Disponible")
             elif topic.startswith("estaciones/estado/f_servicio"):
                 actualizar_estado_por_mac(conexion, cursor, direccion_estacion, "Fuera de servicio")
+            elif topic.startswith("estaciones/estado/no_disponible"):
+                actualizar_estado_por_mac(conexion, cursor, direccion_estacion, "No disponible")
 
 # Función de callback cuando el cliente se desconecta
 def on_disconnect(client, userdata, rc):

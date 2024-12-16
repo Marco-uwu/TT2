@@ -97,10 +97,12 @@ def inserta_mediciones(estacion, conexion, cursor):
             if nueva_sesion:
                 print(f"Crear nueva sesión en estacion: {estacion.dir_mac}")
                 cursor.execute(queryCreaSesion, [estacion.dir_mac])
+                actualizar_estado_por_mac(conexion, cursor, estacion.dir_mac, 'No disponible')
             else:
                 print("Guardar en sesión activa")
         elif not nueva_sesion:
             print("Cerrar sesión activa")
+            actualizar_estado_por_mac(conexion, cursor, estacion.dir_mac, 'Disponible')
             cursor.execute(queryCierraSesion, [estacion.dir_mac])
         else:
             print("Sin sesión activa, inserción de datos...")
