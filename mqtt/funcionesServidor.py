@@ -52,7 +52,7 @@ def inserta_mediciones(estacion, conexion, cursor):
                                     TRUE
                                 ) AS resultado;
                           """
-    queryCreaSesion = """ INSERT INTO sesiones_carga (id_estacion) VALUES ((SELECT id FROM estaciones WHERE dir_mac = %s)); """
+    queryCreaSesion = """ INSERT INTO sesiones_carga (id_estacion, tarifa_aplicada) VALUES ((SELECT id FROM estaciones WHERE dir_mac = %s), (SELECT t.precio FROM estaciones e JOIN tarifas t ON e.id_tarifa = t.id WHERE e.dir_mac = %s)); """
 
     queryCierraSesion = """
                         UPDATE sesiones_carga
@@ -96,7 +96,7 @@ def inserta_mediciones(estacion, conexion, cursor):
             cursor.execute(queryMediciones, [potencia, estacion.dir_mac, 9])
             if nueva_sesion:
                 print(f"Crear nueva sesión en estacion: {estacion.dir_mac}")
-                cursor.execute(queryCreaSesion, [estacion.dir_mac])
+                cursor.execute(queryCreaSesion, [estacion.dir_mac, estacion.dir_mac])
                 actualizar_estado_por_mac(conexion, cursor, estacion.dir_mac, 'No disponible')
             else:
                 print("Guardar en sesión activa")
