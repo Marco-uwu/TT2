@@ -8,6 +8,13 @@ from pymongo import MongoClient
 from claseEstacion import Estacion
 from pymongo.errors import PyMongoError
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+def configurar_gpio(pin: int):
+    """
+    Configura el GPIO para el uso de un LED.
+    """
+    GPIO.setmode(GPIO.BCM)  # Usar la numeración BCM
+    GPIO.setup(pin, GPIO.OUT)  # Configurar el pin como salida
+
 def encender_led(pin: int):
     """
     Enciende un LED conectado a un pin GPIO de la Raspberry Pi.
@@ -15,8 +22,6 @@ def encender_led(pin: int):
     Args:
         pin (int): Número del pin GPIO donde está conectado el LED (en el esquema BCM).
     """
-    GPIO.setmode(GPIO.BCM)  # Usar la numeración BCM
-    GPIO.setup(pin, GPIO.OUT)
     GPIO.output(pin, GPIO.HIGH)  # Activar el pin
 
 def apagar_led(pin: int):
@@ -27,7 +32,6 @@ def apagar_led(pin: int):
         pin (int): Número del pin GPIO donde está conectado el LED (en el esquema BCM).
     """
     GPIO.output(pin, GPIO.LOW)  # Desactivar el pin
-    GPIO.cleanup()
 
 # Función de callback cuando un mensaje es recibido
 def on_message(client, userdata, msg):
@@ -35,9 +39,10 @@ def on_message(client, userdata, msg):
     print(f"Mensaje: {topic}")
     if topic.endswith("/shutdown"):
         print("\n - - - APAGAR ESTACIÓN - - -")
+        PIN_LED = 17
         apagar_led(17)
-        #print(f"PAYLOAD :{msg.payload}")
-        #clienteMqtt.publish("estaciones/estado/f_servicio", msg.payload)
+        print(f"PAYLOAD :{estacion}")
+        clienteMqtt.publish("estaciones/estado/f_servicio", estacion.to_bytearray())
     else:
         print("\nALERTA!!: " + msg.payload.decode() + "\n")
 
@@ -82,11 +87,14 @@ clienteMqtt.loop_start()
 try:
     # Crear una instancia de la clase Estacion con la mac
     estacion = Estacion(dir_mac)
+    clienteMqtt.publish("estaciones/estado/disponible", estacion.to_bytearray())
     
     # Crear el Change Stream para monitorear la colección
     with collection.watch() as stream:
         print("Monitoreando nuevos registros en la colección 'Mediciones'...")
-        encender_led(17) 
+        PIN_LED = 17
+        configurar_gpio(PIN_LED)
+        encender_led(PIN_LED) 
         for change in stream:
             # Verificar si el cambio es de tipo 'insert'
             if change["operationType"] == "insert":
@@ -115,6 +123,8 @@ except KeyboardInterrupt:
     print("Monitoreo interrumpido por el usuario.")
 finally:
     # Cerrar las conexiones
+    clienteMqtt.publish("estaciones/estado/f_servicio", estacion.to_bytearray())
+    GPIO.cleanup()
     clienteMongo.close()
     clienteMqtt.disconnect()
     clienteMqtt.loop_stop()  
