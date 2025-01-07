@@ -231,7 +231,7 @@ CREATE TABLE `estaciones` (
   KEY `fk_tarifa` (`id_tarifa`),
   CONSTRAINT `estaciones_ibfk_1` FOREIGN KEY (`id_regla`) REFERENCES `reglas_medicion` (`id`),
   CONSTRAINT `fk_tarifa` FOREIGN KEY (`id_tarifa`) REFERENCES `tarifas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -260,7 +260,7 @@ DROP TABLE IF EXISTS `mediciones`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mediciones` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `valor` decimal(5,2) DEFAULT NULL,
+  `valor` decimal(7,2) DEFAULT NULL,
   `fecha` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `id_estacion` int DEFAULT NULL,
   `id_tipo_medicion` int DEFAULT NULL,
@@ -269,7 +269,7 @@ CREATE TABLE `mediciones` (
   KEY `id_tipo_medicion` (`id_tipo_medicion`),
   CONSTRAINT `mediciones_ibfk_1` FOREIGN KEY (`id_estacion`) REFERENCES `estaciones` (`id`),
   CONSTRAINT `mediciones_ibfk_2` FOREIGN KEY (`id_tipo_medicion`) REFERENCES `tipos_medicion` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1195 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2685 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -291,7 +291,7 @@ CREATE TABLE `parametros_medicion` (
   KEY `id_tipo_medicion` (`id_tipo_medicion`),
   CONSTRAINT `parametros_medicion_ibfk_1` FOREIGN KEY (`id_tipo_medicion`) REFERENCES `tipos_medicion` (`id`),
   CONSTRAINT `parametros_medicion_ibfk_2` FOREIGN KEY (`id_regla`) REFERENCES `reglas_medicion` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -305,7 +305,7 @@ CREATE TABLE `reglas_medicion` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -321,7 +321,7 @@ CREATE TABLE `reportes` (
   PRIMARY KEY (`id`),
   KEY `id_medicion` (`id_medicion`),
   CONSTRAINT `reportes_ibfk_1` FOREIGN KEY (`id_medicion`) REFERENCES `mediciones` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=402 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=594 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -336,10 +336,11 @@ CREATE TABLE `sesiones_carga` (
   `fecha_inicio` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_fin` datetime DEFAULT NULL,
   `id_estacion` int NOT NULL,
+  `tarifa_aplicada` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_estacion_sesion` (`id_estacion`),
   CONSTRAINT `fk_estacion_sesion` FOREIGN KEY (`id_estacion`) REFERENCES `estaciones` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -355,7 +356,7 @@ CREATE TABLE `tarifas` (
   `precio` decimal(5,2) NOT NULL DEFAULT '1.00',
   `moneda` varchar(3) NOT NULL DEFAULT 'MXN',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -387,4 +388,4 @@ CREATE TABLE `tipos_medicion` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-05  1:55:17
+-- Dump completed on 2025-01-07 13:16:49
